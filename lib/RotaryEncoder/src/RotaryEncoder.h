@@ -6,31 +6,50 @@
 #ifndef RotaryEncoder_h
 #define RotaryEncoder_h
 
+enum EncoderLimits
+{
+    COLOR_LIMIT = 255,
+    BRIGHTNESS_LIMIT = 25,
+    HOURS_LIMIT = 24,
+    MINUTES_LIMIT = 59,
+    SECONDS_LIMIT = 59
+};
+
+enum State
+{
+    NONE,
+    BRIGHTNESS,
+    COLOR_RED,
+    COLOR_GREEN,
+    COLOR_BLUE,
+    TIME_HOURS,
+    TIME_MINUTES,
+    TIME_SECONDS,
+};
+
 class RotaryEncoder
 {
   public:
-    struct EncConstraint
-    {
-        boolean isColor;
-        boolean isTime;
-        boolean isHours;
-        boolean isMinutes;
-        boolean isSeconds;
-    };
-    int SettingsState;
-    int Volume;
-    RotaryEncoder(int up, int down, int push);
-    void *ServiceInterrupt();
+    State state;
+    uint8_t Volume;
+    RotaryEncoder(uint8_t up, uint8_t down, uint8_t push);
+    void ServiceInterrupt();
     void Read();
+    bool SetVolume(uint8_t volume, State state);
 
   private:
-    int _up;
-    int _down;
-    int _push;
-    int _lastEncoded;
-    int _lastPushState;
-    int _lastVolume;
-    int _maxSettingState;
+    uint8_t _up;
+    uint8_t _down;
+    uint8_t _push;
+    uint8_t _lastEncoded;
+    uint8_t _lastPushState;
+    uint8_t _lastVolume;
+    uint8_t _maxSettingState;
+    bool _confirmed;
+    long _lastBouncedTime;
+    long _debounceDelay = 60;
+    bool Confirm(uint8_t seconds, State s);
+    uint8_t SetEncoderLimit(State s);
 };
 
 #endif

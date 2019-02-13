@@ -7,31 +7,47 @@
 #define NixieDigit_h
 
 #include <Adafruit_NeoPixel.h>
+#include "RTClib.h"
+
+/**
+ * Structure for color handling
+ */
+struct RGB
+{
+    uint8_t red;
+    uint8_t green;
+    uint8_t blue;
+};
 
 class NixieDigit
 {
   public:
-    /**
-     * Structure for color handling
-     */
-    struct RGB
+    enum Segment
     {
-        uint8_t red;
-        uint8_t green;
-        uint8_t blue;
+        HOURS,
+        MINUTES,
+        SECONDS,
     };
-    NixieDigit(uint8_t dataPin, uint8_t numberOfSegments);
-    void ShowNumber(uint16_t value, uint8_t pos);
-    void Color(uint8_t red, uint8_t green, uint8_t blue);
+    uint8_t brightness;
+    NixieDigit(uint8_t dataPin, uint8_t numberOfSegments, uint8_t brightness);
+    RGB SetColor(uint8_t value, uint8_t green, uint8_t blue);
+    RGB GetColor();
+    void ShowTime(DateTime t);
+    void ShowColorNumber(uint8_t num);
     void Clear();
     void Show();
     void Begin();
-    void Brightness(uint8_t brightness);
+    void SetBrightness(uint8_t brightness);
+    void BlinkingAll(long delayTime, uint8_t repeat);
 
   private:
-    RGB color;
-    Adafruit_NeoPixel pixels;
+    DateTime _time;
+    RGB _color;
+    Adafruit_NeoPixel _pixels;
+    Segment _segment;
     void Digit(uint8_t digit, uint8_t value);
+    void ShowNumber(uint16_t value, uint8_t pos);
+    void BlinkSegment(Segment segment);
 };
 
 #endif
