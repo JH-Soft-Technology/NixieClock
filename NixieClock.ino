@@ -75,30 +75,20 @@ void handlingColors()
 
     if (encoder.state == COLOR_RED)
     {
-        Serial.print("RED: ");
-        Serial.println(encoder.Volume);
-
         color = digit.GetColor();
         encoder.SetVolume(color.red, COLOR_RED);
-        digit.SetColor(encoder.Volume, color.green, color.red);
+        digit.SetColor(encoder.Volume, color.green, color.blue);
         digit.ShowColorNumber(encoder.Volume);
     }
     if (encoder.state == COLOR_GREEN)
     {
-        Serial.print("GREEN: ");
-        Serial.println(encoder.Volume);
-
         color = digit.GetColor();
         encoder.SetVolume(color.green, COLOR_GREEN);
         digit.SetColor(color.red, encoder.Volume, color.blue);
-        digit.ShowColorNumber(color.red);
         digit.ShowColorNumber(encoder.Volume);
     }
     if (encoder.state == COLOR_BLUE)
     {
-        Serial.print("BLUE: ");
-        Serial.println(encoder.Volume);
-
         color = digit.GetColor();
         encoder.SetVolume(color.blue, COLOR_BLUE);
         digit.SetColor(color.red, color.green, encoder.Volume);
