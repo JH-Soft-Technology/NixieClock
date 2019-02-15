@@ -6,15 +6,23 @@
 #ifndef RotaryEncoder_h
 #define RotaryEncoder_h
 
+/**
+ * Definition of encoder limits.
+ * Each limit is automaticaly set up on encoder
+ * based setting state
+ */
 enum EncoderLimits
 {
     COLOR_LIMIT = 255,
     BRIGHTNESS_LIMIT = 25,
-    HOURS_LIMIT = 24,
+    HOURS_LIMIT = 23,
     MINUTES_LIMIT = 59,
     SECONDS_LIMIT = 59
 };
 
+/**
+ * Definition of setting state
+ */
 enum State
 {
     NONE,
@@ -32,10 +40,10 @@ class RotaryEncoder
   public:
     State state;
     uint8_t Volume;
-    RotaryEncoder(uint8_t up, uint8_t down, uint8_t push);
+    RotaryEncoder(uint8_t up, uint8_t down, uint8_t push, uint8_t maxSettingState);
     void ServiceInterrupt();
     void Read();
-    bool SetVolume(uint8_t volume, State state);
+    void SetVolume(uint8_t volume, State state);
 
   private:
     uint8_t _up;
@@ -48,8 +56,7 @@ class RotaryEncoder
     bool _confirmed;
     long _lastBouncedTime;
     long _debounceDelay = 60;
-    bool Confirm(uint8_t seconds, State s);
-    uint8_t SetEncoderLimit(State s);
+    uint8_t _SetEncoderLimit(State s);
 };
 
 #endif
