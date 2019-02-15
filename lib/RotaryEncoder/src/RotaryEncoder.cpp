@@ -12,8 +12,9 @@
  * @param up - move from 0 to 255
  * @param down - move from 255 - 0
  * @param push - push button change the state of the settings
+ * @param maxSettingState - maximum states to push button of the rotary encoder
  */
-RotaryEncoder::RotaryEncoder(uint8_t up, uint8_t down, uint8_t push)
+RotaryEncoder::RotaryEncoder(uint8_t up, uint8_t down, uint8_t push, uint8_t maxSettingState)
 {
     _confirmed = true;
 
@@ -23,7 +24,7 @@ RotaryEncoder::RotaryEncoder(uint8_t up, uint8_t down, uint8_t push)
                 _lastPushState =
                     _lastBouncedTime = 0;
 
-    _maxSettingState = 4;
+    _maxSettingState = maxSettingState;
     state = NONE;
 
     pinMode(_up = up, INPUT);
@@ -48,30 +49,12 @@ void RotaryEncoder::ServiceInterrupt()
     int encoded = (signalB << 1) | signalA;  // converting the 2 pin value to single number
     int sum = (_lastEncoded << 2) | encoded; // adding it to the previous encoded value
 
-    if ((sum == 0b0111 || sum == 0b1110 || sum == 0b1000 || sum == 0b0001) && Volume < SetEncoderLimit(state))
+    if ((sum == 0b0111 || sum == 0b1110 || sum == 0b1000 || sum == 0b0001) && Volume < _SetEncoderLimit(state))
         Volume++;
     if ((sum == 0b1101 || sum == 0b0100 || sum == 0b0010 || sum == 0b1011) && Volume > 0)
         Volume--;
 
     _lastEncoded = encoded;
-}
-
-uint8_t RotaryEncoder::SetEncoderLimit(State s)
-{
-    switch (s)
-    {
-    case BRIGHTNESS:
-        return BRIGHTNESS_LIMIT;
-        break;
-    case COLOR_RED:
-    case COLOR_GREEN:
-    case COLOR_BLUE:
-        return COLOR_LIMIT;
-        break;
-    default:
-        return 255;
-        break;
-    }
 }
 
 /**
@@ -129,40 +112,40 @@ void RotaryEncoder::Read()
  * @param volume - number of 0 - 255
  * @param state - state where confirm will be used
  */
-bool RotaryEncoder::SetVolume(uint8_t volume, State state)
+void RotaryEncoder::SetVolume(uint8_t volume, State state)
 {
     _lastVolume = volume;
     Volume = volume;
-    bool result = Confirm(2, state);
 
     delay(60); // software debouncing rotary encoder (2)
-
-    return result;
 }
 
 /**
- * Confirm settings
- * @param seconds - how long does it take to confirm the settings
- * @param s - state where confirm will be used
+ * Setup encoder limit based on settings state
+ * @param s - State where we are stand
  */
-bool RotaryEncoder::Confirm(uint8_t seconds, State s)
+uint8_t RotaryEncoder::_SetEncoderLimit(State s)
 {
-    if (state == s && _confirmed == false)
+    switch (s)
     {
-        long currentTime = millis();
-
-        int pushValue = digitalRead(_push);
-        if (pushValue != _lastPushState && _confirmed == false)
-        {
-            _lastBouncedTime = currentTime;
-        }
-
-        if (pushValue == LOW && (currentTime - _lastBouncedTime) > seconds * 1000)
-        {
-            _confirmed = true;
-            return _confirmed;
-        }
-        _lastPushState = pushValue;
+    case BRIGHTNESS:
+        return BRIGHTNESS_LIMIT;
+        break;
+    case COLOR_RED:
+    case COLOR_GREEN:
+    case COLOR_BLUE:
+        return COLOR_LIMIT;
+        break;
+    case TIME_HOURS:
+        return HOURS_LIMIT;
+    case TIME_MINUTES:
+        return MINUTES_LIMIT;
+        break;
+    case TIME_SECONDS:
+        return SECONDS_LIMIT;
+        break;
+    default:
+        return 255;
+        break;
     }
-    return false;
 }

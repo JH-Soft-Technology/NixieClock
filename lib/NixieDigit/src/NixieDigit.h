@@ -22,6 +22,7 @@ struct RGB
 class NixieDigit
 {
   public:
+    // Segment definition
     enum Segment
     {
         HOURS,
@@ -30,24 +31,24 @@ class NixieDigit
     };
     uint8_t brightness;
     NixieDigit(uint8_t dataPin, uint8_t numberOfSegments, uint8_t brightness);
-    RGB SetColor(uint8_t value, uint8_t green, uint8_t blue);
-    RGB GetColor();
-    void ShowTime(DateTime t);
-    void ShowColorNumber(uint8_t num);
+    void Begin();
     void Clear();
     void Show();
-    void Begin();
+    RGB GetColor();
+    DateTime GetTime();
+    void SetColor(uint8_t value, uint8_t green, uint8_t blue);
     void SetBrightness(uint8_t brightness);
-    void BlinkingAll(long delayTime, uint8_t repeat);
+    void SetTime(uint8_t value, RTC_DS3231 &rtc, Segment segment);
+    void ShowTime(DateTime t);
+    void ShowNumber(uint8_t num);
 
   private:
     DateTime _time;
     RGB _color;
     Adafruit_NeoPixel _pixels;
     Segment _segment;
-    void Digit(uint8_t digit, uint8_t value);
-    void ShowNumber(uint16_t value, uint8_t pos);
-    void BlinkSegment(Segment segment);
+    void _Digit(uint8_t digit, uint8_t value);
+    void _ShowNumber(uint16_t value, uint8_t pos);
 };
 
 #endif
